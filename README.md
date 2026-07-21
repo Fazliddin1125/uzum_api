@@ -18,108 +18,73 @@ cp .env.example .env
 
 ## Ma'lumotlarni yuklash
 
-MongoDB ishlayotgan bo'lsa:
-
 ```bash
 npm run seed
 ```
 
-Bu buyruq UI dagi sotuvchilar va mahsulotlarni bazaga qo'shadi.
-
 ## Ishga tushirish
 
 ```bash
-# Development
-npm run dev
-
-# Production
-npm start
+npm run dev    # development
+npm start      # production
 ```
 
 Server: `http://localhost:5000`
 
-## API Endpointlar
+## API Dokumentatsiya
 
-### Mahsulotlar
+Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
 
-| Method | Endpoint | Tavsif |
-|--------|----------|--------|
-| GET | `/api/products/top` | Top mahsulotlar |
-| GET | `/api/products` | Barcha mahsulotlar (qidiruv, filtr) |
-| GET | `/api/products/:slug` | Bitta mahsulot |
+**[docs/API.md](./docs/API.md)**
 
-**Query parametrlar** (`/api/products`):
-- `search` — qidiruv so'zi
-- `category` — kategoriya
-- `seller` — sotuvchi ID
-- `page`, `limit` — sahifalash
+## Tezkor endpointlar
 
-### Sotuvchilar
+| Method | Endpoint | Auth | Tavsif |
+|--------|----------|------|--------|
+| GET | `/api/health` | Yo'q | Server holati |
+| GET | `/api/products/top` | Yo'q | Top mahsulotlar |
+| GET | `/api/products` | Yo'q | Barcha mahsulotlar |
+| GET | `/api/products/:slug` | Yo'q | Bitta mahsulot |
+| **POST** | **`/api/products`** | **Yo'q** | **Mahsulot qo'shish** |
+| GET | `/api/sellers/verified` | Yo'q | Tasdiqlangan sotuvchilar |
+| GET | `/api/sellers/:slug` | Yo'q | Sotuvchi sahifasi |
+| POST | `/api/auth/register` | Yo'q | Ro'yxatdan o'tish |
+| POST | `/api/auth/login` | Yo'q | Kirish |
+| GET | `/api/cart` | Ha (JWT) | Savat |
 
-| Method | Endpoint | Tavsif |
-|--------|----------|--------|
-| GET | `/api/sellers/verified` | Tasdiqlangan sotuvchilar |
-| GET | `/api/sellers` | Barcha sotuvchilar |
-| GET | `/api/sellers/:slug` | Sotuvchi sahifasi + mahsulotlari |
-
-### Autentifikatsiya
-
-| Method | Endpoint | Tavsif |
-|--------|----------|--------|
-| POST | `/api/auth/register` | Ro'yxatdan o'tish |
-| POST | `/api/auth/login` | Kirish |
-| GET | `/api/auth/me` | Profil (JWT kerak) |
-
-### Savat (JWT kerak)
-
-| Method | Endpoint | Tavsif |
-|--------|----------|--------|
-| GET | `/api/cart` | Savatni ko'rish |
-| POST | `/api/cart` | Savatga qo'shish |
-| PUT | `/api/cart/:productId` | Miqdorni yangilash |
-| DELETE | `/api/cart/:productId` | Savatdan o'chirish |
-| DELETE | `/api/cart` | Savatni tozalash |
-
-## Misollar
+## Mahsulot qo'shish (auth kerak emas)
 
 ```bash
-# Top mahsulotlar
-curl http://localhost:5000/api/products/top
-
-# Tasdiqlangan sotuvchilar
-curl http://localhost:5000/api/sellers/verified
-
-# Qidiruv
-curl "http://localhost:5000/api/products?search=krossovka"
-
-# Ro'yxatdan o'tish
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:5000/api/products \
   -H "Content-Type: application/json" \
-  -d '{"name":"Ali","email":"ali@mail.uz","password":"123456"}'
-
-# Savatga qo'shish
-curl -X POST http://localhost:5000/api/cart \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{"productId":"PRODUCT_ID","quantity":8}'
+  -d '{
+    "name": "Yangi mahsulot",
+    "imageUrl": "https://example.com/rasm.jpg",
+    "price": 500000,
+    "minOrderQuantity": 5,
+    "category": "Elektronika",
+    "seller": "SELLER_ID"
+  }'
 ```
+
+Sotuvchi ID olish: `GET /api/sellers/verified`
 
 ## Loyiha tuzilmasi
 
 ```
 src/
-├── config/db.js          # MongoDB ulanish
-├── controllers/        # Biznes logika
-├── middleware/         # Auth va validatsiya
-├── models/             # Mongoose schemalar
-├── routes/             # API marshrutlar
-├── app.js              # Express ilova
-├── server.js           # Server entry point
-└── seed.js             # Demo ma'lumotlar
+├── config/db.js
+├── controllers/
+├── middleware/
+├── models/
+├── routes/
+├── app.js
+├── server.js
+└── seed.js
+docs/
+└── API.md          # To'liq API dokumentatsiya
 ```
 
 ## Test foydalanuvchi
 
-Seed dan keyin:
-- Email: `test@minibaba.uz`
-- Parol: `123456`
+Seed dan keyin: `test@minibaba.uz` / `123456`
