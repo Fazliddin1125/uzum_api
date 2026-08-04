@@ -183,3 +183,32 @@ exports.getProductBySlug = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Mahsulotni o'chirish (auth talab qilinmaydi)
+// @route   DELETE /api/products/:id
+exports.deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let product = null;
+
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      product = await Product.findByIdAndDelete(id);
+    }
+
+    if (!product) {
+      product = await Product.findOneAndDelete({ slug: id });
+    }
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Mahsulot topilmadi' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Mahsulot muvaffaqiyatli o\'chirildi',
+      data: { id: product._id, slug: product.slug, name: product.name },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

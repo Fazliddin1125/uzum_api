@@ -5,6 +5,7 @@ const {
   getProducts,
   getProductBySlug,
   createProduct,
+  deleteProduct,
 } = require('../controllers/productController');
 const validate = require('../middleware/validate');
 
@@ -33,5 +34,6 @@ router.post(
 
 router.get('/', getProducts);
 router.get('/:slug', getProductBySlug);
+router.delete('/:id', deleteProduct);
 
 module.exports = router;

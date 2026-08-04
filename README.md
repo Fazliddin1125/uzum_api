@@ -46,6 +46,7 @@ Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
 | GET | `/api/products` | Yo'q | Barcha mahsulotlar |
 | GET | `/api/products/:slug` | Yo'q | Bitta mahsulot |
 | **POST** | **`/api/products`** | **Yo'q** | **Mahsulot qo'shish** |
+| **DELETE** | **`/api/products/:id`** | **Yo'q** | **Mahsulot o'chirish** |
 | GET | `/api/sellers/verified` | Yo'q | Tasdiqlangan sotuvchilar |
 | GET | `/api/sellers/:slug` | Yo'q | Sotuvchi sahifasi |
 | POST | `/api/auth/register` | Yo'q | Ro'yxatdan o'tish |
@@ -68,6 +69,14 @@ curl -X POST http://localhost:5000/api/products \
 ```
 
 Sotuvchi ID olish: `GET /api/sellers/verified`
+
+## Mahsulot o'chirish (auth kerak emas)
+
+```bash
+curl -X DELETE http://localhost:5000/api/products/PRODUCT_ID
+# yoki slug bilan:
+curl -X DELETE http://localhost:5000/api/products/mahsulot-slug
+```
 
 ## Loyiha tuzilmasi
 

@@ -171,6 +171,39 @@ curl -X POST http://localhost:5000/api/products \
 
 ---
 
+### `DELETE /api/products/:id` — Mahsulot o'chirish (AUTH KERAK EMAS)
+
+Har kim mahsulotni o'chirishi mumkin. Token yuborish shart emas.
+`:id` o'rniga MongoDB ID yoki slug yuborish mumkin.
+
+**Misol (ID bo'yicha):**
+```bash
+curl -X DELETE http://localhost:5000/api/products/6789abc123def456
+```
+
+**Misol (slug bo'yicha):**
+```bash
+curl -X DELETE http://localhost:5000/api/products/yangi-smartfon
+```
+
+**Muvaffaqiyatli javob (200):**
+```json
+{
+  "success": true,
+  "message": "Mahsulot muvaffaqiyatli o'chirildi",
+  "data": {
+    "id": "...",
+    "slug": "yangi-smartfon",
+    "name": "Yangi smartfon"
+  }
+}
+```
+
+**Xatolar:**
+- `404` — mahsulot topilmadi
+
+---
+
 ## 3. Sotuvchilar
 
 ### `GET /api/sellers/verified`
