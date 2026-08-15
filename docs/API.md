@@ -1,6 +1,6 @@
 # Minibaba API — To'liq dokumentatsiya
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:5001`
 
 Barcha javoblar JSON formatida qaytariladi.
 
@@ -245,9 +245,16 @@ GET /api/sellers/uztech-electronics
 
 ## 4. Autentifikatsiya
 
+Register va login **ochiq**.
+
+- `accessToken` — JSON javobda + frontend `localStorage` da (15 daqiqa)
+- `refreshToken` — **httpOnly cookie** da (`refreshToken`, 7 kun). JS o'qiy olmaydi
+
+Frontend so'rovlarida `withCredentials: true` bo'lishi shart (cookie yuborilishi uchun).
+
 ### `POST /api/auth/register`
 
-Yangi foydalanuvchi ro'yxatdan o'tkazish.
+Yangi foydalanuvchi ro'yxatdan o'tkazish. **Auth kerak emas.**
 
 **Body:**
 
@@ -274,16 +281,18 @@ Yangi foydalanuvchi ro'yxatdan o'tkazish.
     "id": "...",
     "name": "Ali Valiyev",
     "email": "ali@mail.uz",
-    "token": "eyJhbGciOiJIUzI1NiIs..."
+    "accessToken": "eyJhbGciOiJIUzI1NiIs..."
   }
 }
 ```
+
+Cookie: `Set-Cookie: refreshToken=...; HttpOnly; Path=/api/auth`
 
 ---
 
 ### `POST /api/auth/login`
 
-Tizimga kirish.
+Tizimga kirish. **Auth kerak emas.**
 
 **Body:**
 
@@ -300,25 +309,61 @@ Tizimga kirish.
 }
 ```
 
+Javob register bilan bir xil: `accessToken` + `refreshToken` cookie.
+
+---
+
+### `POST /api/auth/refresh`
+
+Access token muddati tugaganda yangi access olish.  
+**Body kerak emas** — `refreshToken` cookie avtomatik yuboriladi.
+
+```
+POST /api/auth/refresh
+Cookie: refreshToken=...
+```
+
+**Javob (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "..."
+  }
+}
+```
+
+Yangi `refreshToken` cookie ham yangilanadi.
+
+---
+
+### `POST /api/auth/logout`
+
+Refresh tokenni bekor qilish + cookie ni tozalash. **Access token kerak.**
+
+```
+Authorization: Bearer ACCESS_TOKEN
+```
+
 ---
 
 ### `GET /api/auth/me`
 
-Joriy foydalanuvchi profili. **JWT token kerak.**
+Joriy foydalanuvchi profili. **Access token kerak.**
 
 **Headers:**
 ```
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer ACCESS_TOKEN
 ```
 
 ---
 
-## 5. Savat (JWT kerak)
+## 5. Savat (access token kerak)
 
 Barcha savat endpointlari uchun header:
 
 ```
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer ACCESS_TOKEN
 Content-Type: application/json
 ```
 

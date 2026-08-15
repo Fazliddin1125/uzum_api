@@ -1,10 +1,25 @@
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { generateTokens, verifyRefreshToken } = require('../utils/tokens');
+const {
+  setRefreshCookie,
+  clearRefreshCookie,
+  getRefreshTokenFromRequest,
+} = require('../utils/cookies');
 
-const generateToken = (userId) =>
-  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+const hashRefreshToken = async (refreshToken) => bcrypt.hash(refreshToken, 10);
+
+const saveRefreshToken = async (userId, refreshToken) => {
+  const hashed = await hashRefreshToken(refreshToken);
+  await User.findByIdAndUpdate(userId, { refreshToken: hashed });
+};
+
+const formatAuthUser = (user, accessToken) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  accessToken,
+});
 
 // @desc    Ro'yxatdan o'tish
 // @route   POST /api/auth/register
@@ -21,15 +36,13 @@ exports.register = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
+    const tokens = generateTokens(user._id);
+    await saveRefreshToken(user._id, tokens.refreshToken);
+    setRefreshCookie(res, tokens.refreshToken);
 
     res.status(201).json({
       success: true,
-      data: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      },
+      data: formatAuthUser(user, tokens.accessToken),
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -50,15 +63,91 @@ exports.login = async (req, res) => {
       });
     }
 
+    const tokens = generateTokens(user._id);
+    await saveRefreshToken(user._id, tokens.refreshToken);
+    setRefreshCookie(res, tokens.refreshToken);
+
+    res.json({
+      success: true,
+      data: formatAuthUser(user, tokens.accessToken),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Access token yangilash (refreshToken cookie dan olinadi)
+// @route   POST /api/auth/refresh
+exports.refresh = async (req, res) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token topilmadi (cookie)',
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch {
+      clearRefreshCookie(res);
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token yaroqsiz yoki muddati tugagan',
+      });
+    }
+
+    if (decoded.type !== 'refresh') {
+      clearRefreshCookie(res);
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token yaroqsiz',
+      });
+    }
+
+    const user = await User.findById(decoded.id).select('+refreshToken');
+    if (!user || !user.refreshToken) {
+      clearRefreshCookie(res);
+      return res.status(401).json({
+        success: false,
+        message: 'Foydalanuvchi topilmadi yoki qayta kiring',
+      });
+    }
+
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!isMatch) {
+      clearRefreshCookie(res);
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token mos kelmadi',
+      });
+    }
+
+    const tokens = generateTokens(user._id);
+    await saveRefreshToken(user._id, tokens.refreshToken);
+    setRefreshCookie(res, tokens.refreshToken);
+
     res.json({
       success: true,
       data: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
+        accessToken: tokens.accessToken,
       },
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Chiqish
+// @route   POST /api/auth/logout
+exports.logout = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { refreshToken: null });
+    clearRefreshCookie(res);
+    res.json({ success: true, message: 'Tizimdan chiqildi' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -14,7 +14,7 @@ npm install
 cp .env.example .env
 ```
 
-`.env` faylida `MONGODB_URI` va `JWT_SECRET` ni sozlang.
+`.env` faylida `MONGODB_URI`, `JWT_SECRET` va `JWT_REFRESH_SECRET` ni sozlang.
 
 ## Ma'lumotlarni yuklash
 
@@ -29,7 +29,7 @@ npm run dev    # development
 npm start      # production
 ```
 
-Server: `http://localhost:5000`
+Server: `http://localhost:5001`
 
 ## API Dokumentatsiya
 
@@ -49,9 +49,12 @@ Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
 | **DELETE** | **`/api/products/:id`** | **Yo'q** | **Mahsulot o'chirish** |
 | GET | `/api/sellers/verified` | Yo'q | Tasdiqlangan sotuvchilar |
 | GET | `/api/sellers/:slug` | Yo'q | Sotuvchi sahifasi |
-| POST | `/api/auth/register` | Yo'q | Ro'yxatdan o'tish |
-| POST | `/api/auth/login` | Yo'q | Kirish |
-| GET | `/api/cart` | Ha (JWT) | Savat |
+| POST | `/api/auth/register` | Yo'q | Ro'yxatdan o'tish (`accessToken` + refresh cookie) |
+| POST | `/api/auth/login` | Yo'q | Kirish (`accessToken` + refresh cookie) |
+| POST | `/api/auth/refresh` | Cookie | Access tokenni yangilash |
+| POST | `/api/auth/logout` | Ha (access) | Chiqish |
+| GET | `/api/auth/me` | Ha (access) | Profil |
+| GET | `/api/cart` | Ha (access) | Savat |
 
 ## Mahsulot qo'shish (auth kerak emas)
 
@@ -78,20 +81,24 @@ curl -X DELETE http://localhost:5000/api/products/PRODUCT_ID
 curl -X DELETE http://localhost:5000/api/products/mahsulot-slug
 ```
 
+## React client (auth)
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+- `axiosPublic` — login / register / refresh
+- `axiosAuth` — doim `Authorization: Bearer accessToken`
+- `.env` yo'q: `/api` Vite proxy orqali `localhost:5001` ga ketadi
+
 ## Loyiha tuzilmasi
 
 ```
-src/
-├── config/db.js
-├── controllers/
-├── middleware/
-├── models/
-├── routes/
-├── app.js
-├── server.js
-└── seed.js
-docs/
-└── API.md          # To'liq API dokumentatsiya
+src/                 # Express API
+client/              # React JSX auth ilovasi
+docs/API.md
 ```
 
 ## Test foydalanuvchi

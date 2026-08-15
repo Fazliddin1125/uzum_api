@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const { verifyAccessToken } = require('../utils/tokens');
 
 const protect = async (req, res, next) => {
   let token;
@@ -15,7 +15,15 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = verifyAccessToken(token);
+
+    if (decoded.type && decoded.type !== 'access') {
+      return res.status(401).json({
+        success: false,
+        message: 'Access token yuborilishi kerak',
+      });
+    }
+
     req.user = { id: decoded.id };
     next();
   } catch {

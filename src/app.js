@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const productRoutes = require('./routes/productRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -7,7 +8,15 @@ const cartRoutes = require('./routes/cartRoutes');
 
 const app = express();
 
-app.use(cors());
+const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+
+app.use(
+  cors({
+    origin: clientOrigin,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
