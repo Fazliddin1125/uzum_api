@@ -8,12 +8,13 @@ const cartRoutes = require('./routes/cartRoutes');
 
 const app = express();
 
-const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
-
+// CORS hammaga ochiq — istalgan frontend GET/POST qila oladi
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use(cookieParser());
