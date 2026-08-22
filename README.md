@@ -35,7 +35,8 @@ Server: `http://localhost:5001`
 
 Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
 
-**[docs/API.md](./docs/API.md)**
+**[docs/API.md](./docs/API.md)** — to'liq API  
+**[docs/FOR_AI.md](./docs/FOR_AI.md)** — register, login, `/me`, buyurtma (boshqa AI uchun)
 
 ## Tezkor endpointlar
 
@@ -53,7 +54,9 @@ Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
 | POST | `/api/auth/login` | Yo'q | Kirish (`accessToken` + refresh cookie) |
 | POST | `/api/auth/refresh` | Cookie | Access tokenni yangilash |
 | POST | `/api/auth/logout` | Ha (access) | Chiqish |
-| GET | `/api/auth/me` | Ha (access) | Profil |
+| GET | `/api/auth/me` yoki `/api/me` | Ha (access) | Profil |
+| GET | `/api/orders` | Ha (access) | Buyurtmalarim |
+| POST | `/api/orders` | Ha (access) | Buyurtma berish (`productId` + `quantity`) |
 | GET | `/api/cart` | Ha (access) | Savat |
 
 ## Mahsulot qo'shish (auth kerak emas)

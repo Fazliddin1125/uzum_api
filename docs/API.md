@@ -347,18 +347,71 @@ Authorization: Bearer ACCESS_TOKEN
 
 ---
 
-### `GET /api/auth/me`
+### `GET /api/auth/me` yoki `GET /api/me`
 
-Joriy foydalanuvchi profili. **Access token kerak.**
+Joriy foydalanuvchi profili. **Access token kerak.** Ikkalasi bir xil.
 
 **Headers:**
 ```
 Authorization: Bearer ACCESS_TOKEN
 ```
 
+**Javob:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "name": "Ali Valiyev",
+    "email": "ali@mail.uz"
+  }
+}
+```
+
 ---
 
-## 5. Savat (access token kerak)
+## 5. Buyurtmalar (access token kerak)
+
+Barcha buyurtma endpointlari:
+
+```
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+```
+
+### `GET /api/orders`
+
+Joriy foydalanuvchining buyurtmalari.
+
+### `POST /api/orders`
+
+Buyurtma berish. Mahsulot ID va soni yetarli.
+
+**Body (bitta mahsulot):**
+```json
+{
+  "productId": "6789abc123def456",
+  "quantity": 8
+}
+```
+
+**Body (bir nechta):**
+```json
+{
+  "items": [
+    { "productId": "ID_1", "quantity": 8 },
+    { "productId": "ID_2", "quantity": 3 }
+  ]
+}
+```
+
+`quantity` mahsulotning `minOrderQuantity` dan kichik bo'lmasligi kerak.
+
+**Javob (201):** buyurtma obyekti (`id`, `status`, `total`, `items`).
+
+---
+
+## 6. Savat (access token kerak)
 
 Barcha savat endpointlari uchun header:
 

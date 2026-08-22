@@ -5,6 +5,9 @@ const productRoutes = require('./routes/productRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const authRoutes = require('./routes/authRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const { protect } = require('./middleware/auth');
+const { getMe } = require('./controllers/authController');
 
 const app = express();
 
@@ -28,7 +31,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/products', productRoutes);
 app.use('/api/sellers', sellerRoutes);
 app.use('/api/auth', authRoutes);
+app.get('/api/me', protect, getMe);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Marshrut topilmadi' });
