@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
 const productRoutes = require('./routes/productRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -26,6 +28,22 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Minibaba API ishlayapti' });
+});
+
+// Swagger UI
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Minibaba API Docs',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  })
+);
+
+app.get('/api-docs.json', (req, res) => {
+  res.json(swaggerSpec);
 });
 
 app.use('/api/products', productRoutes);

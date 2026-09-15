@@ -33,7 +33,17 @@ Server: `http://localhost:5001`
 
 ## API Dokumentatsiya
 
-Barcha route'lar, yuboriladigan body va query parametrlar batafsil yozilgan:
+### Swagger UI
+
+```
+http://localhost:5001/api-docs
+```
+
+OpenAPI JSON: `http://localhost:5001/api-docs.json`
+
+Authorize tugmasi orqali `accessToken` qo'yib, himoyalangan routelarni sinab ko'rish mumkin.
+
+### Markdown docs
 
 **[docs/API.md](./docs/API.md)** — to'liq API  
 **[docs/FOR_AI.md](./docs/FOR_AI.md)** — register, login, `/me`, buyurtma (boshqa AI uchun)
